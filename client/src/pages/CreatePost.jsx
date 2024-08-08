@@ -12,6 +12,8 @@ import { useState } from 'react';
 import { CircularProgressbar } from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
 import { useNavigate } from 'react-router-dom';
+import { FaStar } from 'react-icons/fa';
+
 
 export default function CreatePost() {
   const [file, setFile] = useState(null);
@@ -19,6 +21,8 @@ export default function CreatePost() {
   const [imageUploadError, setImageUploadError] = useState(null);
   const [formData, setFormData] = useState({});
   const [publishError, setPublishError] = useState(null);
+  const [rating, setRating] = useState(null);
+  const [hover, setHover] = useState(null);
 
   const navigate = useNavigate();
 
@@ -67,6 +71,7 @@ export default function CreatePost() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(formData),
+        body: JSON.stringify({ ...formData, rating })
       });
       const data = await res.json();
       if (!res.ok) {
@@ -99,24 +104,67 @@ export default function CreatePost() {
           />
           <Select
             onChange={(e) =>
+              setFormData({ ...formData, genre: e.target.value })
+            }
+          >
+            <option value='uncategorized'>Select a genre</option>
+            <option value='horror'>Horror</option>
+            <option value='comedy'>Comedy</option>
+            <option value='thriller'>Thriller</option>
+            <option value='romance'>Romance</option>
+            <option value='action'>Action</option>
+            <option value='drama'>Drama</option>
+          </Select>
+          <Select
+            onChange={(e) =>
               setFormData({ ...formData, category: e.target.value })
             }
           >
-            <option value='uncategorized'>Select a category</option>
-            <option value='javascript'>JavaScript</option>
-            <option value='reactjs'>React.js</option>
-            <option value='nextjs'>Next.js</option>
+            <option value='uncategorized'>Select a language</option>
+            <option value='malayalam'>Malayalam</option>
+            <option value='english'>English</option>
+            <option value='tamil'>Tamil</option>
+            <option value='hindi'>Hindi</option>
+            <option value='telugu'>Telugu</option>
           </Select>
         </div>
-        <div className='flex gap-4 items-center justify-between border-4 border-teal-500 border-dotted p-3'>
+        <div className='flex gap-2 items-center justify-between border-4 border-orange-500 border-dotted p-3'>
           <FileInput
             type='file'
             accept='image/*'
             onChange={(e) => setFile(e.target.files[0])}
           />
+          {[...Array(5)].map((star, index) => {
+            const currentRating = index + 1
+            return (
+              <label>
+                <input
+                  type="radio"
+                  name='rating'
+                  value={currentRating}
+                  onClick={() => {
+                    setRating(currentRating)
+                    setFormData({ ...formData, rating: currentRating });
+                  }}
+                  style={{ display: 'none' }}
+                />
+                <FaStar
+                  className='star'
+                  style={{ cursor: 'pointer' }}
+                  size={20}
+                  color={currentRating <= (hover || rating) ? '#ffc107' : '#e4e5e9'}
+                  onMouseEnter={() => setHover(currentRating)}
+                  onMouseLeave={() => setHover(null)}
+                />
+              </label>
+            )
+
+          })}
+
           <Button
             type='button'
-            gradientDuoTone='purpleToBlue'
+
+            style={{ background: 'linear-gradient(to right, #b22222, #ffd700)' }}
             size='sm'
             outline
             onClick={handleUpdloadImage}
@@ -151,7 +199,7 @@ export default function CreatePost() {
             setFormData({ ...formData, content: value });
           }}
         />
-        <Button type='submit' gradientDuoTone='purpleToPink'>
+        <Button type='submit' className='bg-gradient-to-br from-red-500 to-yellow-400 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-pink-200 dark:focus:ring-pink-800'>
           Publish
         </Button>
         {publishError && (

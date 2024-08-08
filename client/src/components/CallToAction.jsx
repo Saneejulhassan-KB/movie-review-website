@@ -1,24 +1,77 @@
 import { Button } from 'flowbite-react';
+import { Carousel } from "flowbite-react";
+import { useEffect, useState } from 'react';
+import { Link, useParams } from 'react-router-dom';
+
 
 export default function CallToAction() {
+
+  const { postSlug } = useParams();
+  const [post, setPost] = useState(null);
+  const [recentPosts, setRecentPosts] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(false);
+
+  useEffect(() => {
+    const fetchPost = async () => {
+      try {
+        setLoading(true);
+        const res = await fetch(`/api/post/getposts?slug=${postSlug}`);
+        const data = await res.json();
+        if (!res.ok) {
+          setError(true);
+          setLoading(false);
+          return;
+        }
+        setPost(data.posts[0]);
+        setLoading(false);
+        setError(false);
+      } catch (error) {
+        setError(true);
+        setLoading(false);
+      }
+    };
+    fetchPost();
+  }, [postSlug]);
+
+  useEffect(() => {
+    const fetchRecentPosts = async () => {
+      try {
+        const res = await fetch(`/api/post/getposts?limit=3`);
+        const data = await res.json();
+        if (res.ok) {
+          setRecentPosts(data.posts);
+        }
+      } catch (error) {
+        console.log(error.message);
+      }
+    };
+    fetchRecentPosts();
+  }, []);
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  if (error) {
+    return <div>Something went wrong. Please try again later.</div>;
+  }
+
+
   return (
-    <div className='flex flex-col sm:flex-row p-3 border border-teal-500 justify-center items-center rounded-tl-3xl rounded-br-3xl text-center'>
-        <div className="flex-1 justify-center flex flex-col">
-            <h2 className='text-2xl'>
-                Want to learn more about JavaScript?
-            </h2>
-            <p className='text-gray-500 my-2'>
-                Checkout these resources with 100 JavaScript Projects
-            </p>
-            <Button gradientDuoTone='purpleToPink' className='rounded-tl-xl rounded-bl-none'>
-                <a href="https://www.100jsprojects.com" target='_blank' rel='noopener noreferrer'>
-                    100 JavaScript Projects
-                </a>
-            </Button>
-        </div>
-        <div className="p-7 flex-1">
-            <img src="https://bairesdev.mo.cloudinary.net/blog/2023/08/What-Is-JavaScript-Used-For.jpg" />
-        </div>
+    <div className="h-56 sm:h-64 xl:h-80 2xl:h-96">
+      <Carousel slideInterval={5000}>
+      {post && post.image ? (
+        <Link to={`/post/${post.slug}`}> <img src={post.image} alt="Post Image" style={{display: 'flex',justifyContent:'center'}}/></Link>
+        ) : (
+          <img src="https://flowbite.com/docs/images/carousel/carousel-1.svg" alt="Default Image" style={{width:'100%', height: 'auto',display:'block',margin: '0 auto'}}/>
+        )}
+        {recentPosts.map((recentPost, index) => (
+          <Link key={index} to={`/post/${recentPost.slug}`}>
+          <img key={index} src={recentPost.image || "https://flowbite.com/docs/images/carousel/carousel-2.svg"} alt={`Recent Post ${index + 1}`} style={{width:'100%', height: 'auto',display:'block',margin: '0 auto'}}/>
+          </Link>
+        ))}
+      </Carousel>
     </div>
   )
 }

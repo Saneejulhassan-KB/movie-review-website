@@ -2,9 +2,7 @@ import Post from '../models/post.model.js';
 import { errorHandler } from '../utils/error.js';
 
 export const create = async (req, res, next) => {
-  if (!req.user.isAdmin) {
-    return next(errorHandler(403, 'You are not allowed to create a post'));
-  }
+  
   if (!req.body.title || !req.body.content) {
     return next(errorHandler(400, 'Please provide all required fields'));
   }
@@ -34,6 +32,7 @@ export const getposts = async (req, res, next) => {
     const posts = await Post.find({
       ...(req.query.userId && { userId: req.query.userId }),
       ...(req.query.category && { category: req.query.category }),
+      ...(req.query.genre && { genre: req.query.genre }),
       ...(req.query.slug && { slug: req.query.slug }),
       ...(req.query.postId && { _id: req.query.postId }),
       ...(req.query.searchTerm && {
@@ -72,10 +71,12 @@ export const getposts = async (req, res, next) => {
 };
 
 export const deletepost = async (req, res, next) => {
-  if (!req.user.isAdmin || req.user.id !== req.params.userId) {
-    return next(errorHandler(403, 'You are not allowed to delete this post'));
-  }
   try {
+    const post = await Post.findById(req.params.postId);
+    if (!req.user.isAdmin && post.userId !== req.user.id) {
+      return next(errorHandler(403, 'You are not allowed to delete this post'));
+    }
+
     await Post.findByIdAndDelete(req.params.postId);
     res.status(200).json('The post has been deleted');
   } catch (error) {
@@ -84,10 +85,12 @@ export const deletepost = async (req, res, next) => {
 };
 
 export const updatepost = async (req, res, next) => {
-  if (!req.user.isAdmin || req.user.id !== req.params.userId) {
-    return next(errorHandler(403, 'You are not allowed to update this post'));
-  }
   try {
+    const post = await Post.findById(req.params.postId);
+    if (!req.user.isAdmin && post.userId !== req.user.id) {
+      return next(errorHandler(403, 'You are not allowed to update this post'));
+    }
+
     const updatedPost = await Post.findByIdAndUpdate(
       req.params.postId,
       {
@@ -95,6 +98,8 @@ export const updatepost = async (req, res, next) => {
           title: req.body.title,
           content: req.body.content,
           category: req.body.category,
+          genre: req.body.genre,
+          rating: req.body.rating,
           image: req.body.image,
         },
       },

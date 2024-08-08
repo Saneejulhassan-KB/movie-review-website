@@ -8,6 +8,7 @@ export default function Search() {
     searchTerm: '',
     sort: 'desc',
     category: 'uncategorized',
+    genre:'uncategorized'
   });
 
   console.log(sidebarData);
@@ -24,12 +25,14 @@ export default function Search() {
     const searchTermFromUrl = urlParams.get('searchTerm');
     const sortFromUrl = urlParams.get('sort');
     const categoryFromUrl = urlParams.get('category');
-    if (searchTermFromUrl || sortFromUrl || categoryFromUrl) {
+    const genreFromUrl = urlParams.get('genre');
+    if (searchTermFromUrl || sortFromUrl || categoryFromUrl || genreFromUrl) {
       setSidebarData({
         ...sidebarData,
         searchTerm: searchTermFromUrl,
         sort: sortFromUrl,
         category: categoryFromUrl,
+        genre:genreFromUrl
       });
     }
 
@@ -67,6 +70,10 @@ export default function Search() {
       const category = e.target.value || 'uncategorized';
       setSidebarData({ ...sidebarData, category });
     }
+    if (e.target.id === 'genre') {
+      const genre = e.target.value || 'uncategorized';
+      setSidebarData({ ...sidebarData, genre });
+    }
   };
 
   const handleSubmit = (e) => {
@@ -75,6 +82,7 @@ export default function Search() {
     urlParams.set('searchTerm', sidebarData.searchTerm);
     urlParams.set('sort', sidebarData.sort);
     urlParams.set('category', sidebarData.category);
+    urlParams.set('genre', sidebarData.genre);
     const searchQuery = urlParams.toString();
     navigate(`/search?${searchQuery}`);
   };
@@ -130,13 +138,31 @@ export default function Search() {
               value={sidebarData.category}
               id='category'
             >
-              <option value='uncategorized'>Uncategorized</option>
-              <option value='reactjs'>React.js</option>
-              <option value='nextjs'>Next.js</option>
-              <option value='javascript'>JavaScript</option>
+              <option value='uncategorized'>Select a language</option>
+              <option value='malayalam'>Malayalam</option>
+              <option value='english'>English</option>
+              <option value='tamil'>Tamil</option>
+              <option value='hindi'>Hindi</option>
+              <option value='telugu'>Telugu</option>
             </Select>
           </div>
-          <Button type='submit' outline gradientDuoTone='purpleToPink'>
+          <div className='flex items-center gap-2'>
+            <label className='font-semibold'>Genre:</label>
+            <Select
+              onChange={handleChange}
+              value={sidebarData.genre}
+              id='genre'
+            >
+              <option value='uncategorized'>Select a genre</option>
+              <option value='horror'>Horror</option>
+              <option value='comedy'>Comedy</option>
+              <option value='thriller'>Thriller</option>
+              <option value='romance'>Romance</option>
+              <option value='action'>Action</option>
+              <option value='drama'>Drama</option>
+            </Select>
+          </div>
+          <Button type='submit' outline style={{background: 'linear-gradient(to right, #b22222, #ffd700)'}}>
             Apply Filters
           </Button>
         </form>

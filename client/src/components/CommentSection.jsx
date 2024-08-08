@@ -122,15 +122,15 @@ export default function CommentSection({ postId }) {
           />
           <Link
             to={'/dashboard?tab=profile'}
-            className='text-xs text-cyan-600 hover:underline'
+            className='text-xs text-yellow-400 hover:underline'
           >
             @{currentUser.username}
           </Link>
         </div>
       ) : (
-        <div className='text-sm text-teal-500 my-5 flex gap-1'>
+        <div className='text-sm text-yellow-400 my-5 flex gap-1'>
           You must be signed in to comment.
-          <Link className='text-blue-500 hover:underline' to={'/sign-in'}>
+          <Link className='text-yellow-400 hover:underline' to={'/sign-in'}>
             Sign In
           </Link>
         </div>
@@ -138,7 +138,7 @@ export default function CommentSection({ postId }) {
       {currentUser && (
         <form
           onSubmit={handleSubmit}
-          className='border border-teal-500 rounded-md p-3'
+          className='border border-orange-500 rounded-md p-3'
         >
           <Textarea
             placeholder='Add a comment...'
@@ -151,7 +151,7 @@ export default function CommentSection({ postId }) {
             <p className='text-gray-500 text-xs'>
               {200 - comment.length} characters remaining
             </p>
-            <Button outline gradientDuoTone='purpleToBlue' type='submit'>
+            <Button outline style={{background: 'linear-gradient(to right, #b22222, #ffd700)'}} type='submit'>
               Submit
             </Button>
           </div>
